@@ -7,26 +7,20 @@ from urllib.parse import urlparse  # Para procesar la variable DB_URL
 
 class BaseDatos:
     def __init__(self):
-        db_url = os.getenv("DB_URL")
-        if not db_url:
-            raise ValueError("La variable de entorno 'DB_URL' no está configurada o es inválida.")
-        
-        # Parsear la URL para extraer las credenciales y datos de conexión
-        parsed_url = urlparse(db_url)
-        if not all([parsed_url.hostname, parsed_url.port, parsed_url.username, parsed_url.password, parsed_url.path]):
-            raise ValueError("La variable 'DB_URL' no contiene todos los datos necesarios para conectarse a la base de datos.")
-        
-
-        # Configurar la conexión
-        self.conexion = mysql.connector.connect(
-            host=parsed_url.hostname,
-            port=parsed_url.port,
-            user=parsed_url.username,
-            password=parsed_url.password,
-            database=parsed_url.path.lstrip('/')
-        )
-        self.cursor = self.conexion.cursor()
-        self.crear_tablas()
+        try:
+            # Conectar con la base de datos usando las variables de entorno
+            self.conexion = mysql.connector.connect(
+                host=os.getenv("DB_HOST"),         # mysql.railway.internal
+                user=os.getenv("DB_USER"),         # root
+                password=os.getenv("DB_PASSWORD"), # contraseña
+                database=os.getenv("DB_NAME"),     # sistema_experto
+                port=int(os.getenv("DB_PORT"))     # 3306
+            )
+            self.cursor = self.conexion.cursor()
+            self.crear_tablas()
+        except mysql.connector.Error as e:
+            print(f"Error al conectar con la base de datos: {e}")
+            raise
 
     def crear_tablas(self):
         self.cursor.execute('''
