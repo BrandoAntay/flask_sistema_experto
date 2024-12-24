@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Resultados</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center bg-blue-50">
+
+    <!-- Contenedor Principal -->
+    <div class="bg-white p-8 rounded-lg shadow-lg w-4/5 max-w-4xl fade-in">
+        <h1 class="text-3xl font-bold text-blue-700 text-center mb-6">Historial de Resultados</h1>
+        <p class="text-gray-600 text-center mb-4">Revisa los resultados de tus tests realizados.</p>
+
+        <!-- Tabla de Resultados -->
+        <table class="table-auto w-full text-left border-collapse">
+            <thead class="bg-blue-600 text-white">
+                <tr>
+                    <th class="py-2 px-4">Fecha</th>
+                    <th class="py-2 px-4">Clasificación</th>
+                    <th class="py-2 px-4 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test in historial %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="py-2 px-4">{{ test.fecha }}</td>
+                    <td class="py-2 px-4">{{ test.clasificacion }}</td>
+                    <td class="py-2 px-4 text-center">
+                        <button class="bg-blue-600 text-white py-1 px-3 rounded-lg shadow hover:bg-blue-700 transition"
+                                onclick="verDetalle('{{ test.fecha }}')">Ver Detalle</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div id="detalleModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-11/12 max-w-lg fade-in">
+            <h2 class="text-2xl font-bold text-blue-700 mb-4">Detalle del Test</h2>
+            <p><strong>Fecha:</strong> <span id="detalleFecha"></span></p>
+            <p><strong>Clasificación:</strong> <span id="detalleClasificacion"></span></p>
+            <p><strong>Resultado Total:</strong> <span id="detalleResultadoTotal"></span></p>
+            <h3 class="text-lg font-semibold text-blue-600 mt-4">Factores:</h3>
+            <ul id="detalleFactores" class="list-disc pl-6 text-gray-600">
+                <!-- Detalles de los factores -->
+            </ul>
+            <div class="text-center mt-6">
+                <button onclick="cerrarModal()"
+                        class="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function verDetalle(fecha) {
+            fetch('/detalle_historial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fecha: fecha })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                document.getElementById('detalleFecha').innerText = data.fecha;
+                document.getElementById('detalleClasificacion').innerText = data.clasificacion;
+                document.getElementById('detalleResultadoTotal').innerText = data.resultado_total;
+
+                const factoresList = document.getElementById('detalleFactores');
+                factoresList.innerHTML = '';
+                for (const [factor, puntaje] of Object.entries(data.factores)) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${factor}: ${puntaje}`;
+                    factoresList.appendChild(listItem);
+                }
+
+                document.getElementById('detalleModal').classList.remove('hidden');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function cerrarModal() {
+            document.getElementById('detalleModal').classList.add('hidden');
+        }
+    </script>
+
+</body>
+</html>

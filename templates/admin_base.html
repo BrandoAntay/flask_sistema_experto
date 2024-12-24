@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador - {{ title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="flex">
+        <!-- Barra de navegación -->
+        <nav id="sidebar" class="bg-gray-800 text-white w-48 min-h-screen flex flex-col transition-all duration-300 ease-in-out">
+            <!-- Botón de Minimizar/Maximizar -->
+            <div class="flex justify-center items-center py-4">
+                <button id="toggleSidebar" class="text-white focus:outline-none">
+                    <svg class="h-6 w-6 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Icono y Nombre del Usuario -->
+            <div id="userIcon" class="flex flex-col items-center mt-4 space-y-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" viewBox="0 0 320 448">
+                    <path style="stroke:none;fill:white;" d="M512 731.429 658.283 512h219.424v512H146.294V512h219.424zM292.576 219.477C292.576 98.352 390.78 0 512 0c120.976 0 219.424 98.353 219.424 219.477 0 121.173-98.448 219.38-219.424 219.38-121.219 0-219.424-98.206-219.424-219.38" transform="translate(-64.005)scale(.4375)" />
+                </svg>
+                <span id="usernameText" class="text-lg font-semibold sidebar-text">{{ username }}</span>
+            </div>
+
+            <!-- Opciones de Navegación -->
+            <ul id="navOptions" class="mt-6 space-y-4 flex flex-col items-center">
+                <li class="hover:bg-gray-700 py-3 px-4 w-full flex justify-center">
+                    <a href="/admin" class="flex items-center space-x-3">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24">
+                            <path d="M22 4v3a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5a2 2 0 1 1 2 2M9 15H4a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2" style="fill:#2ca9bc" />
+                            <path d="M11 4v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2m9 7h-5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2" style="fill:white" />
+                        </svg>
+                        <span class="sidebar-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="hover:bg-gray-700 py-3 px-4 w-full flex justify-center">
+                    <a href="/usuarios" class="flex items-center space-x-3">
+                        <svg class="h-6 w-6" viewBox="0 0 16 16">
+                            <path fill="none" d="M0 0h16v16H0z" />
+                            <path style="fill:white;" d="M16 12.5a2.5 2.5 0 0 0-2.5-2.5h-7A2.5 2.5 0 0 0 4 12.5V15h12zM3 13H0v-2.5A2.5 2.5 0 0 1 2.5 8h4.036c.218.376.495.714.819 1H6.5A3.5 3.5 0 0 0 3 12.5zm7-10a3.001 3.001 0 0 1 0 6 3.001 3.001 0 0 1 0-6M6.126 6.997 6 7a3.001 3.001 0 0 1 0-6c1.026 0 1.932.516 2.473 1.302a4.004 4.004 0 0 0-2.347 4.695" />
+                        </svg>
+                        <span class="sidebar-text">Usuarios</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Cerrar Sesión -->
+            <ul class="mt-auto">
+                <li class="hover:bg-gray-700 py-3 px-4 w-full flex justify-center">
+                    <a href="/logout" class="flex items-center space-x-3">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24">
+                            <path d="M9 11H5.41l1.3-1.29a1 1 0 0 0-1.42-1.42l-3 3a1 1 0 0 0 0 1.42l3 3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42L5.41 13H9a1 1 0 0 0 0-2" style="fill:#2ca9bc" />
+                            <path d="m20.48 3.84-6-1.5A2 2 0 0 0 12 4.28V5h-2a2 2 0 0 0-2 2v1a1 1 0 0 0 2 0V7h2v10h-2v-1a1 1 0 0 0-2 0v1a2 2 0 0 0 2 2h2v.72a2 2 0 0 0 2.48 1.94l6-1.5A2 2 0 0 0 22 18.22V5.78a2 2 0 0 0-1.52-1.94" style="fill:white" />
+                        </svg>
+                        <span class="sidebar-text">Cerrar Sesión</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenido Principal -->
+        <main class="flex-grow p-6">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+        toggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('w-16');
+            sidebar.classList.toggle('w-48');
+            sidebarTexts.forEach(text => text.classList.toggle('hidden'));
+            toggleSidebar.children[0].classList.toggle('rotate-180');
+        });
+    </script>
+</body>
+</html>

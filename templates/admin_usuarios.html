@@ -1,0 +1,107 @@
+
+{% extends "admin_base.html" %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-lg w-full fade-in">
+    <h1 class="text-3xl font-bold text-blue-700 text-center mb-6">Gestión de Usuarios</h1>
+    <p class="text-gray-600 text-center mb-4">Aquí puedes gestionar los usuarios registrados en el sistema.</p>
+
+    <!-- Tabla de Usuarios -->
+    <div class="overflow-x-auto">
+        <table class="table-auto w-full text-left border-collapse">
+            <thead class="bg-blue-600 text-white">
+                <tr>
+                    <th class="py-2 px-4">Nombre</th>
+                    <th class="py-2 px-4 hidden sm:table-cell">Correo</th>
+                    <th class="py-2 px-4">Carrera</th>
+                    <th class="py-2 px-4 hidden md:table-cell">Ciclo</th>
+                    <th class="py-2 px-4 text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="py-2 px-4">{{ usuario.nombre }}</td>
+                    <td class="py-2 px-4 hidden sm:table-cell">{{ usuario.correo }}</td>
+                    <td class="py-2 px-4">{{ usuario.carrera }}</td>
+                    <td class="py-2 px-4 hidden md:table-cell">{{ usuario.ciclo }}</td>
+                    <td class="py-2 px-4 text-center">
+                        <div class="flex justify-center items-center space-x-2">
+                            <!-- Botón Ver -->
+                            <button onclick="verDetallesUsuario('{{ usuario.id }}')" class="bg-green-500 text-white py-1 px-3 rounded-lg shadow hover:bg-green-600 transition" title="Ver detalles">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            
+                            <!-- Botón Eliminar -->
+                            <button class="bg-red-500 text-white py-1 px-3 rounded-lg shadow hover:bg-red-600 transition"
+                                    title="Eliminar usuario">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal de Detalles -->
+<div id="detalleModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-lg p-8 w-11/12 max-w-lg fade-in">
+        <h2 class="text-2xl font-bold text-blue-700 mb-4">Detalles del Usuario</h2>
+        <p><strong>ID:</strong> <span id="detalleID"></span></p>
+        <p><strong>Nombre:</strong> <span id="detalleNombre"></span></p>
+        <p><strong>Correo:</strong> <span id="detalleCorreo"></span></p>
+        <p><strong>Carrera:</strong> <span id="detalleCarrera"></span></p>
+        <p><strong>Ciclo:</strong> <span id="detalleCiclo"></span></p>
+        <p><strong>Sexo:</strong> <span id="detalleSexo"></span></p>
+        <p><strong>Edad:</strong> <span id="detalleEdad"></span></p>
+        <p><strong>Rol:</strong> <span id="detalleRol"></span></p>
+        <p><strong>Fecha de Registro:</strong> <span id="detalleFechaRegistro"></span></p>
+        <div class="text-center mt-6">
+            <button onclick="cerrarModal()"
+                    class="bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function verDetallesUsuario(id) {
+        fetch(`/usuario_detalle/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                // Rellenar el modal con los datos del usuario
+                document.getElementById('detalleID').innerText = id;
+                document.getElementById('detalleNombre').innerText = data.nombre;
+                document.getElementById('detalleCorreo').innerText = data.correo;
+                document.getElementById('detalleCarrera').innerText = data.carrera;
+                document.getElementById('detalleCiclo').innerText = data.ciclo;
+                document.getElementById('detalleSexo').innerText = data.sexo;
+                document.getElementById('detalleEdad').innerText = data.edad;
+                document.getElementById('detalleRol').innerText = data.rol;
+                document.getElementById('detalleFechaRegistro').innerText = data.fecha_registro;
+
+                // Mostrar el modal
+                document.getElementById('detalleModal').classList.remove('hidden');
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function cerrarModal() {
+        document.getElementById('detalleModal').classList.add('hidden');
+    }
+</script>
+
+{% endblock %}

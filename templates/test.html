@@ -1,0 +1,239 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <title>Test de Beck II</title>
+</head>
+<body>
+    <h1>Test de Beck II</h1>
+    <form method="POST" action="/test">
+        {% for pregunta in preguntas %}
+            <div>
+                <p><strong>{{ pregunta.idx + 1 }}. {{ pregunta.pregunta }}</strong></p>
+                {% for opcion_idx, opcion in pregunta.opciones %}
+                    <input type="radio" id="pregunta_{{ pregunta.idx }}_opcion_{{ opcion_idx }}" name="respuestas[{{ pregunta.idx }}]" value="{{ opcion_idx }}" required>
+                    <label for="pregunta_{{ pregunta.idx }}_opcion_{{ opcion_idx }}">{{ opcion }}</label>
+                    <br>
+                {% endfor %}
+            </div>
+            <hr>
+        {% endfor %}
+        <button type="submit">Enviar Test</button>
+    </form>
+    
+    
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Beck II</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .progress-bar {
+            height: 10px;
+            background: linear-gradient(to right, #0077b6, #00b4d8);
+            transition: width 0.3s ease;
+        }
+        .hidden {
+            display: none;
+        }
+        .alert {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease-in-out;
+            height: 20px; /* Espacio reservado */
+        }
+        .alert.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .question-card-container {
+            min-height: 200px; /* Altura mínima consistente */
+        }
+        .minimal-button {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0077b6;
+            color: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .minimal-button:hover {
+            background: #005f8a;
+            transform: scale(1.1);
+        }
+    </style>
+    <script>
+        let currentQuestionIndex = 0;
+
+        function updateProgressBar(index, total) {
+            const progress = document.getElementById('progress-bar');
+            const percentage = ((index + 1) / total) * 100;
+            progress.style.width = percentage + '%';
+            document.getElementById('progress-text').innerText = `Pregunta ${index + 1} de ${total}`;
+        }
+
+        function showQuestion(index) {
+            const questions = document.querySelectorAll('.question-card');
+            const nextButton = document.getElementById('next-button');
+            const alertMessage = document.getElementById('alert-message');
+
+            questions.forEach((q, i) => {
+                q.classList.add('hidden');
+                if (i === index) {
+                    q.classList.remove('hidden');
+                }
+            });
+
+            alertMessage.classList.remove('show');
+            updateProgressBar(index, questions.length);
+
+            if (index === questions.length - 1) {
+                nextButton.disabled = true;
+                nextButton.classList.add('bg-gray-300', 'cursor-not-allowed');
+            } else {
+                nextButton.disabled = false;
+                nextButton.classList.remove('bg-gray-300', 'cursor-not-allowed');
+            }
+        }
+
+        function nextQuestion() {
+            const questions = document.querySelectorAll('.question-card');
+            const currentQuestion = questions[currentQuestionIndex];
+            const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked');
+
+            if (!selectedOption) {
+                const alertMessage = document.getElementById('alert-message');
+                alertMessage.innerText = 'Debe seleccionar una opción antes de continuar.';
+                alertMessage.classList.add('show');
+                return;
+            }
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+            }
+        }
+
+        function launchConfetti(event) {
+            const questions = document.querySelectorAll('.question-card');
+            const currentQuestion = questions[currentQuestionIndex];
+            const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked');
+
+            if (!selectedOption) {
+                const alertMessage = document.getElementById('alert-message');
+                alertMessage.innerText = 'Debe seleccionar una opción antes de finalizar el test.';
+                alertMessage.classList.add('show');
+                event.preventDefault();
+                return;
+            }
+
+            canvasConfetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        window.onload = () => {
+            showQuestion(currentQuestionIndex);
+            updateProgressBar(currentQuestionIndex, document.querySelectorAll('.question-card').length);
+        };
+    </script>
+</head>
+<body class="bg-blue-50 min-h-screen flex flex-col items-center justify-center">
+
+    <!-- Contenedor Principal -->
+    <div class="bg-white p-8 rounded-lg shadow-xl w-4/5 max-w-3xl fade-in">
+        <!-- Botón de Regresar -->
+        <div class="text-left mb-4">
+            <a href="/welcome" class="minimal-button" title="Regresar a la página principal">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 21V11h6v10" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Título -->
+        <h1 class="text-3xl font-bold text-blue-700 text-center mb-6">Test de Beck II</h1>
+        <p class="text-gray-600 text-center mb-4">Por favor, responde cuidadosamente cada pregunta para evaluar tu bienestar emocional.</p>
+
+        <!-- Barra de Progreso -->
+        <div class="mb-6">
+            <div class="w-full bg-gray-200 rounded-full">
+                <div id="progress-bar" class="progress-bar rounded-full"></div>
+            </div>
+            <p id="progress-text" class="text-sm text-center text-blue-600 mt-2">Pregunta 1 de X</p>
+        </div>
+
+        <!-- Mensaje de Alerta -->
+        <div id="alert-message" class="alert text-red-600 text-center mb-4"></div>
+
+        <!-- Preguntas -->
+        <div class="question-card-container">
+            <form method="POST" action="/test" onsubmit="launchConfetti(event)">
+                {% for pregunta in preguntas %}
+                    <div class="question-card hidden">
+                        <h2 class="text-xl font-semibold text-blue-700 mb-4">{{ pregunta.idx + 1 }}. {{ pregunta.pregunta }}</h2>
+                        <div class="space-y-2">
+                            {% for opcion_idx, opcion in pregunta.opciones %}
+                                <label class="block bg-blue-50 border border-blue-200 p-4 rounded-lg hover:bg-blue-100 transition">
+                                    <input type="radio" id="pregunta_{{ pregunta.idx }}_opcion_{{ opcion_idx }}" name="respuestas[{{ pregunta.idx }}]" value="{{ opcion_idx }}" required class="mr-2">
+                                    {{ opcion }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- Navegación -->
+                <div class="flex justify-between mt-8">
+                    <button type="button" onclick="prevQuestion()" class="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 transition">Anterior</button>
+                    <button type="button" id="next-button" onclick="nextQuestion()" class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition">Siguiente</button>
+                </div>
+
+                <!-- Botón Finalizar -->
+                <div class="text-center mt-8">
+                    <button type="submit" class="bg-green-600 text-white py-2 px-8 rounded-lg shadow-md hover:bg-green-700 transition">Finalizar Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+
+

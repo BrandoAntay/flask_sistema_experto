@@ -1,0 +1,220 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+<h1 class="text-2xl font-semibold mb-6">Dashboard</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Ícono de Usuarios Registrados -->
+    <a href="/usuarios" class="block">
+        <div class="bg-white shadow rounded-lg p-4 flex items-center hover:bg-gray-100 transition">
+            <div class="bg-blue-500 text-white rounded-full p-3">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="7" r="5" stroke="#fff" stroke-width="2"/>
+                    <path d="M17 14h.352a3 3 0 0 1 2.976 2.628l.391 3.124A2 2 0 0 1 18.734 22H5.266a2 2 0 0 1-1.985-2.248l.39-3.124A3 3 0 0 1 6.649 14H7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-lg font-semibold">{{ total_usuarios }}</p>
+                <p class="text-gray-500">Usuarios Registrados</p>
+            </div>
+        </div>
+    </a>
+
+
+    <!-- Ícono de Tests Realizados -->
+    <a href="/admin/tests" class="block">
+        <div class="bg-white shadow rounded-lg p-4 flex items-center hover:bg-gray-100 transition">
+            <div class="bg-green-500 text-white rounded-full p-3">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <p class="text-lg font-semibold">{{ total_tests }}</p>
+                <p class="text-gray-500">Tests Realizados</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- Gráficos -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+    <!-- Gráfico de pastel -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold mb-4">Distribución por Clasificación</h2>
+        <canvas id="pieChart"></canvas>
+
+        <!-- Filtros de Mes y Año -->
+        <div class="flex justify-center mt-4 space-x-4">
+            <div>
+                <label for="month" class="block text-sm font-medium text-gray-700">Mes</label>
+                <select id="month" class="mt-1 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+            </div>
+            <div>
+                <label for="year" class="block text-sm font-medium text-gray-700">Año</label>
+                <select id="year" class="mt-1 block w-full pl-3 pr-10 py-2 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <!-- Rellenar dinámicamente con JavaScript -->
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button id="filterButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Filtrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de barras -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-semibold mb-4">Tests por Mes (Año Actual)</h2>
+        <canvas id="barChart"></canvas>
+    </div>
+</div>
+
+<!-- Registros -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+    <!-- Últimos Tests Realizados -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-blue-700">Últimos Tests Realizados</h2>
+            <a href="/admin/tests" class="bg-blue-600 text-white py-1 px-4 rounded-lg shadow hover:bg-blue-700 transition text-sm">Ver todo</a>
+        </div>
+        <table class="table-auto w-full text-left border-collapse">
+            <thead class="bg-blue-600 text-white">
+                <tr>
+                    <th class="py-2 px-4">Nombre</th>
+                    <th class="py-2 px-4">Clasificación</th>
+                    <th class="py-2 px-4">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test in ultimos_tests %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="py-2 px-4 border">{{ test[0] }}</td>
+                    <td class="py-2 px-4 border">{{ test[1] }}</td>
+                    <td class="py-2 px-4 border">{{ test[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Últimos Usuarios Registrados -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold text-blue-700">Últimos Usuarios Registrados</h2>
+            <a href="/usuarios" class="bg-blue-600 text-white py-1 px-4 rounded-lg shadow hover:bg-blue-700 transition text-sm">
+                Ver todo
+            </a>
+        </div>
+        <table class="table-auto w-full text-left border-collapse">
+            <thead class="bg-blue-600 text-white">
+                <tr>
+                    <th class="py-2 px-4">Nombre</th>
+                    <th class="py-2 px-4">Correo</th>
+                    <th class="py-2 px-4">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in ultimos_usuarios %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="py-2 px-4 border">{{ usuario[0] }}</td>
+                    <td class="py-2 px-4 border">{{ usuario[1] }}</td>
+                    <td class="py-2 px-4 border">{{ usuario[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Rellenar años dinámicamente
+    const currentYear = new Date().getFullYear();
+    const yearSelect = document.getElementById('year');
+    for (let year = currentYear - 5; year <= currentYear; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+    }
+    yearSelect.value = currentYear; // Año actual por defecto
+
+    // Gráfico de pastel
+    const pieData = JSON.parse(`{{ pie_data|tojson|safe }}`);
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: pieData.labels,
+            datasets: [{
+                label: 'Clasificaciones',
+                data: pieData.values,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = pieData.values.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            return `${label}: ${value} tests (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Filtrar el gráfico de pastel
+    document.getElementById('filterButton').addEventListener('click', () => {
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+
+        fetch(`/filter_pie_chart?month=${month}&year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                pieChart.data.labels = data.labels;
+                pieChart.data.datasets[0].data = data.values;
+                pieChart.update();
+            });
+    });
+
+    // Gráfico de barras
+    const barData = JSON.parse(`{{ bar_data|tojson|safe }}`);
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: barData.labels,
+            datasets: [{
+                label: 'Tests por Mes',
+                data: barData.values,
+                backgroundColor: '#36A2EB',
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
