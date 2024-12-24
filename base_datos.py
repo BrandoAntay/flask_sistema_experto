@@ -7,10 +7,17 @@ from urllib.parse import urlparse  # Para procesar la variable DB_URL
 
 class BaseDatos:
     def __init__(self):
-        # Leer y parsear la variable DB_URL
         db_url = os.getenv("DB_URL")
+        if not db_url:
+            raise ValueError("La variable de entorno 'DB_URL' no está configurada o es inválida.")
+        
+        # Parsear la URL para extraer las credenciales y datos de conexión
         parsed_url = urlparse(db_url)
+        if not all([parsed_url.hostname, parsed_url.port, parsed_url.username, parsed_url.password, parsed_url.path]):
+            raise ValueError("La variable 'DB_URL' no contiene todos los datos necesarios para conectarse a la base de datos.")
+        
 
+        # Configurar la conexión
         self.conexion = mysql.connector.connect(
             host=parsed_url.hostname,
             port=parsed_url.port,
