@@ -135,11 +135,11 @@ def results():
     desglose_factores = motor_inferencia.generar_perfil_factores()
     recomendaciones = motor_inferencia.obtener_recomendaciones(clasificacion, motor_inferencia.factores)
     return render_template('results.html', 
-                           puntuacion=motor_inferencia.puntuacion_total, 
-                           clasificacion=clasificacion, 
-                           interpretacion=interpretacion,
-                           desglose_factores=desglose_factores,
-                           recomendaciones=recomendaciones)
+                        puntuacion=motor_inferencia.puntuacion_total, 
+                        clasificacion=clasificacion, 
+                        interpretacion=interpretacion,
+                        desglose_factores=desglose_factores,
+                        recomendaciones=recomendaciones)
 
 @app.route('/historial', methods=['GET'])
 def historial():
