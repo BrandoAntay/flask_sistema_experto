@@ -2,7 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from base_datos import BaseDatos
 from base_conocimiento import BaseConocimiento
 from motor_inferencia import MotorDeInferencia
+from dotenv import load_dotenv
 import os
+
+# Cargar variables del archivo .env
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -201,14 +205,6 @@ def detalle_historial():
 
     return jsonify({"error": "Registro no encontrado"}), 404
 
-@app.route('/filter_pie_chart')
-def filter_pie_chart():
-    month = request.args.get('month', type=int)
-    year = request.args.get('year', type=int)
-
-    filtered_data = db.obtener_distribucion_clasificaciones_filtrada(month, year)
-    return jsonify(filtered_data)
-
 @app.route('/usuarios')
 def admin_usuarios():
     if 'user_id' not in session or not db.es_administrador(session['user_id']):
@@ -283,6 +279,14 @@ def admin_test_detalle():
             })
 
     return jsonify({"error": "Registro no encontrado."}), 404
+
+@app.route('/filter_pie_chart')
+def filter_pie_chart():
+    month = request.args.get('month', type=int)
+    year = request.args.get('year', type=int)
+
+    filtered_data = db.obtener_distribucion_clasificaciones_filtrada(month, year)
+    return jsonify(filtered_data)
 
 @app.route('/logout')
 def logout():
