@@ -68,14 +68,14 @@ class BaseDatos:
 
     def verificar_usuario(self, nombre_usuario, contrasena):
     # Crear un cursor independiente para esta consulta
-    with self.conexion.cursor() as cursor:
-        query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
-        cursor.execute(query, (nombre_usuario,))
-        user = cursor.fetchone()
+        with self.conexion.cursor() as cursor:
+            query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
+            cursor.execute(query, (nombre_usuario,))
+            user = cursor.fetchone()
 
-        if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
-            return user[0], user[2]  # Devuelve id y rol_id
-    return None
+            if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
+                return user[0], user[2]  # Devuelve id y rol_id
+        return None
 
 
 
