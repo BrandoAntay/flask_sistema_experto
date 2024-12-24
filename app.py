@@ -2,11 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from base_datos import BaseDatos
 from base_conocimiento import BaseConocimiento
 from motor_inferencia import MotorDeInferencia
-from dotenv import load_dotenv
 import os
-
-# Cargar variables del archivo .env
-load_dotenv()
 
 app = Flask(__name__)
 
