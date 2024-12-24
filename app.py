@@ -54,13 +54,12 @@ def login():
         user = db.verificar_usuario(username, password)
 
         if user:
-            session['user_id'] = user[0]  # ID del usuario
-            session['rol_id'] = user[1]  # Rol del usuario
-            session['username'] = username  # Nombre de usuario
+            session['user_id'] = user[0]
+            session['rol_id'] = user[1]
+            session['username'] = username
             flash('Inicio de sesión exitoso.', 'success')
 
-            # Redirigir según el rol
-            if session['rol_id'] == 2:  # Administrador
+            if session['rol_id'] == 2:
                 return redirect(url_for('admin_dashboard'))
             else:
                 return redirect(url_for('welcome'))
@@ -136,11 +135,71 @@ def results():
     desglose_factores = motor_inferencia.generar_perfil_factores()
     recomendaciones = motor_inferencia.obtener_recomendaciones(clasificacion, motor_inferencia.factores)
     return render_template('results.html', 
-                        puntuacion=motor_inferencia.puntuacion_total, 
-                        clasificacion=clasificacion, 
-                        interpretacion=interpretacion,
-                        desglose_factores=desglose_factores,
-                        recomendaciones=recomendaciones)
+                           puntuacion=motor_inferencia.puntuacion_total, 
+                           clasificacion=clasificacion, 
+                           interpretacion=interpretacion,
+                           desglose_factores=desglose_factores,
+                           recomendaciones=recomendaciones)
+
+@app.route('/historial', methods=['GET'])
+def historial():
+    if 'user_id' not in session:
+        flash('Por favor, inicie sesión primero.', 'warning')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    historial_tests = db.obtener_historial_tests(usuario_id=user_id)
+
+    historial_data = [
+        {
+            'fecha': str(test[7]),
+            'clasificacion': test[6],
+            'factores': {
+                'Autoestima': test[0],
+                'Pensamientos negativos': test[1],
+                'Problemas interpersonales': test[2],
+                'Ansiedad': test[3],
+                'Función cognitiva': test[4],
+                'Regulación emocional': test[5]
+            }
+        }
+        for test in historial_tests
+    ]
+
+    return render_template('historial.html', historial=historial_data)
+
+@app.route('/detalle_historial', methods=['POST'])
+def detalle_historial():
+    if 'user_id' not in session:
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    user_id = session['user_id']
+    data = request.get_json()
+    if not data or 'fecha' not in data:
+        return jsonify({"error": "Datos inválidos"}), 400
+
+    fecha = data['fecha']
+    historial_tests = db.obtener_historial_tests(usuario_id=user_id)
+
+    for test in historial_tests:
+        if str(test[7]) == fecha:
+            resultado_total = sum([test[0], test[1], test[2], test[3], test[4], test[5]])
+
+            return jsonify({
+                'fecha': str(test[7]),
+                'clasificacion': test[6],
+                'resultado_total': resultado_total,
+                'factores': {
+                    'Autoestima': test[0],
+                    'Pensamientos negativos': test[1],
+                    'Problemas interpersonales': test[2],
+                    'Ansiedad': test[3],
+                    'Función cognitiva': test[4],
+                    'Regulación emocional': test[5]
+                }
+            })
+
+    return jsonify({"error": "Registro no encontrado"}), 404
 
 @app.route('/logout')
 def logout():
@@ -150,5 +209,5 @@ def logout():
 
 if __name__ == '__main__':
     from waitress import serve
-    port = int(os.getenv("PORT", 5000))  # Usar el puerto definido en las variables de entorno o 5000 por defecto
+    port = int(os.getenv("PORT", 5000))
     serve(app, host='0.0.0.0', port=port)
