@@ -2,15 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from base_datos import BaseDatos
 from base_conocimiento import BaseConocimiento
 from motor_inferencia import MotorDeInferencia
-from dotenv import load_dotenv
 import os
 
-# Cargar variables del archivo .env
-load_dotenv()
-
-# Inicializar la aplicación Flask
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'clave_secreta_por_defecto')  # Clave secreta segura
+
+# Usar una clave secreta segura desde variables de entorno
+app.secret_key = os.getenv("SECRET_KEY", "clave_secreta_por_defecto")
 
 # Inicializar instancias del sistema experto
 db = BaseDatos()
