@@ -15,6 +15,7 @@ class BaseDatos:
                 password=os.getenv("DB_PASSWORD"), # contraseña
                 database=os.getenv("DB_NAME"),     # sistema_experto
                 port=int(os.getenv("DB_PORT"))     # 3306
+                consume_results=True  # Limpia automáticamente resultados pendientes
             )
             self.cursor = self.conexion.cursor()
             self.crear_tablas()
@@ -61,15 +62,28 @@ class BaseDatos:
             return False
 
     def verificar_usuario(self, nombre_usuario, contrasena):
-        # Seleccionar id y rol_id del usuario
+    try:
+        # Consulta SQL
         query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
         self.cursor.execute(query, (nombre_usuario,))
-        user = self.cursor.fetchone()
 
-        # Verificar si la contraseña coincide
-        if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
-            return user[0], user[2]  # Devuelve id y rol_id
+        # Obtener el resultado
+        user = self.cursor.fetchone()  # Asegúrate de que se obtienen todos los datos
+        
+        # Si se encuentra el usuario, verifica la contraseña
+        if user:
+            user_id, hashed_password, rol_id = user
+            if bcrypt.checkpw(contrasena.encode('utf-8'), hashed_password.encode('utf-8')):
+                return user_id, rol_id
+        
+        return None  # Usuario no encontrado o contraseña inválida
+    except mysql.connector.Error as e:
+        print(f"Error en verificar_usuario: {e}")
         return None
+    finally:
+        # Limpia el cursor para asegurarte de que no haya resultados pendientes
+        self.cursor.fetchall()  # Limpia cualquier resultado pendiente
+
 
 
 
