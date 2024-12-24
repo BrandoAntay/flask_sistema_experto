@@ -67,16 +67,15 @@ class BaseDatos:
             return False
 
     def verificar_usuario(self, nombre_usuario, contrasena):
-    # Crear un cursor independiente para esta consulta
-        with self.conexion.cursor() as cursor:
-            query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
-            cursor.execute(query, (nombre_usuario,))
-            user = cursor.fetchone()
+        # Seleccionar id y rol_id del usuario
+        query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
+        self.cursor.execute(query, (nombre_usuario,))
+        user = self.cursor.fetchone()
 
-            if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
-                return user[0], user[2]  # Devuelve id y rol_id
+        # Verificar si la contraseña coincide
+        if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
+            return user[0], user[2]  # Devuelve id y rol_id
         return None
-
 
 
 
@@ -104,9 +103,8 @@ class BaseDatos:
 
 
     def obtener_historial_tests(self, usuario_id=None):
-    with self.conexion.cursor() as cursor:
         if usuario_id:
-            cursor.execute(
+            self.cursor.execute(
                 """
                 SELECT autoestima, pensamientos_negativos, problemas_interpersonales,
                     ansiedad, funcion_cognitiva, regulacion_emocional, clasificacion, fecha
@@ -117,7 +115,7 @@ class BaseDatos:
                 (usuario_id,)
             )
         else:
-            cursor.execute(
+            self.cursor.execute(
                 """
                 SELECT usuarios.nombre, historial_tests.autoestima, historial_tests.pensamientos_negativos,
                     historial_tests.problemas_interpersonales, historial_tests.ansiedad,
@@ -127,8 +125,7 @@ class BaseDatos:
                 INNER JOIN usuarios ON historial_tests.usuario_id = usuarios.id
                 """
             )
-        return cursor.fetchall()
-
+        return self.cursor.fetchall()
 
     # Verificar si el usuario tiene rol de administrador
     def es_administrador(self, user_id):
@@ -288,17 +285,16 @@ class BaseDatos:
         return None
 
     def obtener_historial_completo(self):
-    query = """
-        SELECT u.nombre AS nombre_usuario, h.autoestima, h.pensamientos_negativos,
-            h.problemas_interpersonales, h.ansiedad, h.funcion_cognitiva,
-            h.regulacion_emocional, h.clasificacion, h.fecha, h.usuario_id
-        FROM historial_tests h
-        INNER JOIN usuarios u ON h.usuario_id = u.id
-        ORDER BY h.fecha DESC
-    """
-    with self.conexion.cursor() as cursor:
-        cursor.execute(query)
-        historial = cursor.fetchall()
+        query = """
+            SELECT u.nombre AS nombre_usuario, h.autoestima, h.pensamientos_negativos,
+                h.problemas_interpersonales, h.ansiedad, h.funcion_cognitiva,
+                h.regulacion_emocional, h.clasificacion, h.fecha, h.usuario_id
+            FROM historial_tests h
+            INNER JOIN usuarios u ON h.usuario_id = u.id
+            ORDER BY h.fecha DESC
+        """
+        self.cursor.execute(query)
+        historial = self.cursor.fetchall()
         return [
             {
                 "nombre_usuario": row[0],
@@ -314,7 +310,6 @@ class BaseDatos:
             }
             for row in historial
         ]
-
 
 
 
