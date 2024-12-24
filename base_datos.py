@@ -14,7 +14,7 @@ class BaseDatos:
                 user=os.getenv("DB_USER"),         # root
                 password=os.getenv("DB_PASSWORD"), # contraseña
                 database=os.getenv("DB_NAME"),     # sistema_experto
-                port=int(os.getenv("DB_PORT"))     # 3306
+                port=int(os.getenv("DB_PORT")),     # 3306
                 consume_results=True  # Limpia automáticamente resultados pendientes
             )
             self.cursor = self.conexion.cursor()
