@@ -1,5 +1,5 @@
 #base_datos.py
-
+import os
 import mysql.connector
 import bcrypt
 from datetime import datetime
@@ -7,10 +7,11 @@ from datetime import datetime
 class BaseDatos:
     def __init__(self):
         self.conexion = mysql.connector.connect(
-            host="localhost",
-            user="Brando",
-            password="9012450405",
-            database="sistema_experto"
+            host=os.getenv("DB_HOST"),         # Lee DB_HOST desde las variables de entorno
+            user=os.getenv("DB_USER"),         # Lee DB_USER desde las variables de entorno
+            password=os.getenv("DB_PASSWORD"), # Lee DB_PASSWORD desde las variables de entorno
+            database=os.getenv("DB_NAME"),     # Lee DB_NAME desde las variables de entorno
+            port=int(os.getenv("DB_PORT"))     # Lee DB_PORT desde las variables de entorno
         )
         self.cursor = self.conexion.cursor()
         self.crear_tablas()
