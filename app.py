@@ -67,22 +67,26 @@ def login():
             flash('Usuario o contraseña incorrectos.', 'danger')
     return render_template('login.html')
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        contrasena = request.form['contrasena']
-        sexo = request.form['sexo']
-        edad = request.form['edad']
-        correo = request.form['correo']
-        carrera = request.form['carrera']
-        ciclo = request.form['ciclo']
-        if db.registrar_usuario(nombre, contrasena, sexo, edad, correo, carrera, ciclo):
-            flash('Registro exitoso. Ahora puede iniciar sesión.', 'success')
-            return redirect(url_for('login'))
-        else:
-            flash('Error en el registro. Nombre de usuario ya existe.', 'danger')
-    return render_template('register.html')
+    # Datos del formulario
+    nombre_usuario = request.form['nombre']
+    contrasena = request.form['contrasena']
+    sexo = request.form['sexo']
+    edad = request.form['edad']
+    correo = request.form['correo']
+    carrera = request.form['carrera']
+    ciclo = request.form['ciclo']
+
+    # Asignar el rol Estudiante por defecto
+    rol_id = 1  # ID del rol "Estudiante"
+
+    # Registrar usuario en la base de datos
+    db.registrar_usuario(nombre_usuario, contrasena, sexo, edad, correo, carrera, ciclo, rol_id)
+
+    flash('Registro exitoso. Ahora puedes iniciar sesión.', 'success')
+    return redirect(url_for('login'))
+
 
 @app.route('/welcome')
 def welcome():
