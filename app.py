@@ -259,8 +259,9 @@ def admin_test_detalle():
         if str(test[7]) == fecha:
             resultado_total = sum([test[0], test[1], test[2], test[3], test[4], test[5]])
 
+            usuario = db.obtener_usuario_por_id(usuario_id)
             return jsonify({
-                'nombre_usuario': db.obtener_usuario_por_id(usuario_id)['nombre'],
+                'nombre_usuario': usuario['nombre'] if usuario else "Desconocido",
                 'fecha': str(test[7]),
                 'clasificacion': test[6],
                 'resultado_total': resultado_total,
@@ -275,6 +276,7 @@ def admin_test_detalle():
             })
 
     return jsonify({"error": "Registro no encontrado."}), 404
+
 
 @app.route('/filter_pie_chart')
 def filter_pie_chart():
