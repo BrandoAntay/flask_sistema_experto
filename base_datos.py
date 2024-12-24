@@ -7,21 +7,26 @@ from urllib.parse import urlparse  # Para procesar la variable DB_URL
 
 class BaseDatos:
     def __init__(self):
-        try:
-            # Conectar con la base de datos usando las variables de entorno
-            self.conexion = mysql.connector.connect(
-                host=os.getenv("DB_HOST"),         # mysql.railway.internal
-                user=os.getenv("DB_USER"),         # root
-                password=os.getenv("DB_PASSWORD"), # contraseña
-                database=os.getenv("DB_NAME"),     # sistema_experto
-                port=int(os.getenv("DB_PORT")),     # 3306
-                consume_results=True  # Limpia automáticamente resultados pendientes
-            )
-            self.cursor = self.conexion.cursor()
-            self.crear_tablas()
-        except mysql.connector.Error as e:
-            print(f"Error al conectar con la base de datos: {e}")
-            raise
+        db_url = os.getenv("DB_URL")
+        if not db_url:
+            raise ValueError("La variable de entorno 'DB_URL' no está configurada o es inválida.")
+        
+        # Parsear la URL para extraer las credenciales y datos de conexión
+        parsed_url = urlparse(db_url)
+        if not all([parsed_url.hostname, parsed_url.port, parsed_url.username, parsed_url.password, parsed_url.path]):
+            raise ValueError("La variable 'DB_URL' no contiene todos los datos necesarios para conectarse a la base de datos.")
+        
+
+        # Configurar la conexión
+        self.conexion = mysql.connector.connect(
+            host=parsed_url.hostname,
+            port=parsed_url.port,
+            user=parsed_url.username,
+            password=parsed_url.password,
+            database=parsed_url.path.lstrip('/')
+        )
+        self.cursor = self.conexion.cursor()
+        self.crear_tablas()
 
     def crear_tablas(self):
         self.cursor.execute('''
@@ -62,28 +67,15 @@ class BaseDatos:
             return False
 
     def verificar_usuario(self, nombre_usuario, contrasena):
-    try:
-        # Consulta SQL
+        # Seleccionar id y rol_id del usuario
         query = "SELECT id, contrasena, rol_id FROM usuarios WHERE nombre = %s"
         self.cursor.execute(query, (nombre_usuario,))
+        user = self.cursor.fetchone()
 
-        # Obtener el resultado
-        user = self.cursor.fetchone()  # Asegúrate de que se obtienen todos los datos
-        
-        # Si se encuentra el usuario, verifica la contraseña
-        if user:
-            user_id, hashed_password, rol_id = user
-            if bcrypt.checkpw(contrasena.encode('utf-8'), hashed_password.encode('utf-8')):
-                return user_id, rol_id
-        
-        return None  # Usuario no encontrado o contraseña inválida
-    except mysql.connector.Error as e:
-        print(f"Error en verificar_usuario: {e}")
+        # Verificar si la contraseña coincide
+        if user and bcrypt.checkpw(contrasena.encode('utf-8'), user[1].encode('utf-8')):
+            return user[0], user[2]  # Devuelve id y rol_id
         return None
-    finally:
-        # Limpia el cursor para asegurarte de que no haya resultados pendientes
-        self.cursor.fetchall()  # Limpia cualquier resultado pendiente
-
 
 
 
