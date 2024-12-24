@@ -149,5 +149,6 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
+    from waitress import serve
     port = int(os.getenv("PORT", 5000))  # Usar el puerto definido en las variables de entorno o 5000 por defecto
     serve(app, host='0.0.0.0', port=port)
