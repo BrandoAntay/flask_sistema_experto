@@ -77,7 +77,6 @@ def register():
         correo = request.form['correo']
         carrera = request.form['carrera']
         ciclo = request.form['ciclo']
-        rol_id = 1  # Asignar rol_id automáticamente como 1 para nuevos usuarios
         if db.registrar_usuario(nombre, contrasena, sexo, edad, correo, carrera, ciclo):
             flash('Registro exitoso. Ahora puede iniciar sesión.', 'success')
             return redirect(url_for('login'))
