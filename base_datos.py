@@ -3,15 +3,20 @@ import os
 import mysql.connector
 import bcrypt
 from datetime import datetime
+from urllib.parse import urlparse  # Para procesar la variable DB_URL
 
 class BaseDatos:
     def __init__(self):
+        # Leer y parsear la variable DB_URL
+        db_url = os.getenv("DB_URL")
+        parsed_url = urlparse(db_url)
+
         self.conexion = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),         # Lee DB_HOST desde las variables de entorno
-            user=os.getenv("DB_USER"),         # Lee DB_USER desde las variables de entorno
-            password=os.getenv("DB_PASSWORD"), # Lee DB_PASSWORD desde las variables de entorno
-            database=os.getenv("DB_NAME"),     # Lee DB_NAME desde las variables de entorno
-            port=int(os.getenv("DB_PORT"))     # Lee DB_PORT desde las variables de entorno
+            host=parsed_url.hostname,
+            port=parsed_url.port,
+            user=parsed_url.username,
+            password=parsed_url.password,
+            database=parsed_url.path.lstrip('/')
         )
         self.cursor = self.conexion.cursor()
         self.crear_tablas()
